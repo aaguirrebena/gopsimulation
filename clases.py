@@ -105,6 +105,10 @@ class Grafo:
         distance = r*c
 
         return distance/5 * 60
+    
+    @staticmethod
+    def key_sort(coneccion):
+        return coneccion.tiempo + coneccion.conections[1].tiempo_poda
 
     def agregar_nodo(self, solicitud):
         nuevo_nodo = Nodo(solicitud.tiempo_inicial, solicitud.id, solicitud.urgencia, solicitud.lat, solicitud.lon, solicitud.tiempo_poda)
@@ -118,10 +122,11 @@ class Grafo:
 
     def agregar_coneccion(self, nodo1, nodo2):
         coneccion = Coneccion(nodo1, nodo2, self.calcular_distancia(nodo1, nodo2))
+        coneccion2 = Coneccion(nodo2, nodo1, self.calcular_distancia(nodo1, nodo2))
         nodo1.conecciones.append(coneccion)
-        nodo2.conecciones.append(coneccion)
-        nodo1.conecciones.sort(key=lambda x: x.tiempo)
-        nodo2.conecciones.sort(key=lambda x: x.tiempo)
+        nodo2.conecciones.append(coneccion2)
+        nodo1.conecciones.sort(key=self.key_sort)
+        nodo2.conecciones.sort(key=self.key_sort)
 
     def print_conecciones(self, nodo):
         for coneccion in nodo.conecciones:

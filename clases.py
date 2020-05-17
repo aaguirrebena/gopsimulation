@@ -130,10 +130,7 @@ class Grafo:
 
     def print_conecciones(self, nodo):
         for coneccion in nodo.conecciones:
-            if nodo.id != coneccion.conections[0].id:
-                nodo2 = coneccion.conections[0]
-            else:
-                nodo2 = coneccion.conections[1]
+            nodo2 = coneccion.conections[1]
             print("Nodo {}: se conecta a {} con poda de {}".format(nodo.id, nodo2.id, nodo2.tiempo_poda))
 
     def eliminar_nodo(self, nodo):
@@ -147,8 +144,8 @@ class Grafo:
             self.eliminar_coneccion(nodo, nodo2)
     
     def eliminar_coneccion(self, node1, node2):
-        node1.conecciones = [i for i in node1.conecciones if i.conections[1] != node2 and i.conections[0] != node2]
-        node2.conecciones = [i for i in node2.conecciones if i.conections[1] != node1 and i.conections[0] != node1]
+        node1.conecciones = [i for i in node1.conecciones if i.conections[1] != node2]
+        node2.conecciones = [i for i in node2.conecciones if i.conections[1] != node1]
             
     
     def planificar(self, id, start=None, muni=True, tiempo=0, visitados=[]):
@@ -161,10 +158,7 @@ class Grafo:
         tiempo += start_node.tiempo_poda
         
         for conect in start_node.conecciones:
-            if start_node.id != conect.conections[0].id:
-                nodo2 = conect.conections[0]
-            else:
-                nodo2 = conect.conections[1]
+            nodo2 = conect.conections[1]
             
             if nodo2 not in visitados:
                 posible = conect.tiempo + nodo2.tiempo_poda + nodo2.muni.tiempo

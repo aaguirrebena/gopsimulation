@@ -78,7 +78,7 @@ class Simulation:
 
         perdidas = []
         for sol in self.solicitudes:
-            if sol._plazo_maximo < 0:
+            if sol._plazo_maximo <= 0:
                 self.perdidas += 1
                 perdidas.append(sol.id)
 
@@ -107,7 +107,8 @@ class Simulation:
                             self.dias_atencion.append(sol.plazo_inicial - sol._plazo_maximo + 1)
                     self.solicitudes = [sol for sol in self.solicitudes if sol not in sols]
             except IndexError as e:
-                print("no hay mas solicitudes")
+                # print("no hay mas solicitudes")
+                pass
 
         # ordenada = sorted(self.solicitudes, key=lambda x: x.prioridad, reverse=True)
         # print("dia: ", self.dia_actual)

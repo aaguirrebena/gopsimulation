@@ -78,7 +78,7 @@ class Simulation:
 
         perdidas = []
         for sol in self.solicitudes:
-            if sol._plazo_maximo <= 0:
+            if sol._plazo_maximo < 0:
                 self.perdidas += 1
                 perdidas.append(sol.id)
 

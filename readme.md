@@ -1,7 +1,7 @@
 # TODO
 
-1. concciones uni-direccionales
-1. Cambiar efuncion de planificacion para que incluya tiempo de planificacoin y poda con el objetivo de minimizar solicitudes perdidas
+1. ~~concciones uni-direccionales~~
+1. ~~Cambiar funcion de planificacion para que incluya tiempo de planificacoin y poda con el objetivo de minimizar solicitudes perdidas~~
 1. simulacion de politica base primero urgencia y luego FIFO --> random.seed para tener simulaciones iguales
 1. podas planificadas (muni)
 1. poligono coordenadas

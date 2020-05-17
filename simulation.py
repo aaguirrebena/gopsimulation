@@ -6,7 +6,7 @@ from random import random
 dia_inicial = 15
 
 class Simulation:
-    def __init__(self, dias, llegadas):
+    def __init__(self, dias, llegadas, meses):
         self.tiempo_maximo = dias*24*60
         self.llegadas = llegadas.pop(0)
         self.tiempo_actual = 0
@@ -17,6 +17,7 @@ class Simulation:
         self.dias_atencion = []
         self.perdidas = 0
         self.descartadas = 0
+        self.meses = meses
 
         #Estadisticas importantes
         self.podas_realizadas = 0
@@ -40,7 +41,7 @@ class Simulation:
         self.eventos.append(cl.Evento('nueva_solicitud', self.llegadas.pop(0)))
 
         t = (8*60) + (24*dia_inicial*60)
-        ft = 30*4 - dia_inicial
+        ft = 30*self.meses - dia_inicial
         if ft > 0:
             for _ in range(ft):
                 if _%5 != 0 and _%6 != 0:
@@ -123,17 +124,17 @@ class Simulation:
                 self.tiempo_actual = evento.tiempo
                 self.metodos[evento.nombre](evento)
 
-def global_statistics(n, dias, llegadas):
+def global_statistics(n, dias, meses, llegadas):
     tiempo_maximo = 24 * 60 * dias
     estadisticas = list()
     for i in range(n):
-        s = Simulation(dias, llegadas)
+        s = Simulation(dias, llegadas, meses)
         s.run()
         estadisticas.append(
-            {'podas_realizadas': s.podas_realizadas, 
-            "podas_pendientes": s._podas_pendientes, 
-            "dias_atencion": np.mean(s.dias_atencion), 
-            "solicitudes_perdidas": s.perdidas
+            {'podas_realizadas': s.podas_realizadas,
+            "podas_pendientes": s._podas_pendientes,
+            "dias_atencion": np.mean(s.dias_atencion),
+            "solicitudes_perdidas": s.perdidas,
             "solicitudes_descartadas": s.descartadas})
         print("Simulacion numero: {}".format(i))
         # for x in range(len(s.solicitudes)):
@@ -163,10 +164,9 @@ def printear(n, estadisticas, tiempo_maximo):
     print("   Promedio de solicitudes descartadas:                  {0:<10.6}".format(np.mean([est['solicitudes_descartadas'] for est in estadisticas])))
 
 if __name__ == '__main__':
-    meses = 3
-    fds = meses*8
+    meses = 12
     dias = 30*meses
     repetitions = 5
     llegadas = ll.generar_llegadas(dias, repetitions)
-    estadisticas, tiempo = global_statistics(repetitions, dias, llegadas)
+    estadisticas, tiempo = global_statistics(repetitions, dias, meses, llegadas)
     printear(repetitions, estadisticas, tiempo)

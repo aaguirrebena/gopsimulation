@@ -123,12 +123,13 @@ class Simulation:
                 self.podas_realizadas += len(sols)
                 self.solicitudes = [sol for sol in self.solicitudes if sol not in sols]
 
-                # ids = [sol.id for sol in sols]
-                # tiempo_viaje = self.grafo.determinar_tiempo_viaje(ids)
-                # tiempo_poda = self.grafo.determinar_tiempo_poda(ids)
-                # tiempo_t = 60*8 - tiempo_poda - tiempo_viaje
-                # self.tiempo_viaje += tiempo_viaje
-                # self.tiempo_restante += tiempo_t
+                ids = [sol.id for sol in sols]
+                tiempo_viaje = self.grafo.determinar_tiempo_viaje(ids)
+                ids = [sol.id for sol in sols]
+                tiempo_poda = self.grafo.determinar_tiempo_poda(ids)
+                tiempo_t = 60*8 - tiempo_poda - tiempo_viaje
+                self.tiempo_viaje += tiempo_viaje
+                self.tiempo_restante += tiempo_t
 
                 for node in nodos:
                     self.grafo.eliminar_nodo(node)
@@ -161,22 +162,26 @@ class Simulation:
                 # print([node.id for node in recorridos])
                 self.podas_realizadas += len(recorridos)
 
-                # ids = [sol.id for sol in recorridos]
-                # tiempo_viaje = self.grafo.determinar_tiempo_viaje(ids)
-                # tiempo_poda = self.grafo.determinar_tiempo_poda(ids)
-                # tiempo_t = 60*8 - tiempo_poda - tiempo_viaje
-                # self.tiempo_viaje += tiempo_viaje
-                # self.tiempo_restante += tiempo_t
+                sols = [sol.id for sol in recorridos]
 
-                sols = []
+                for sol in self.solicitudes:
+                    if sol.id in sols:
+                        self.dias_atencion.append(sol.plazo_inicial - sol._plazo_maximo + 1)
+                
+                self.solicitudes = [sol for sol in self.solicitudes if sol.id not in sols]
+
+                ids = [sol.id for sol in recorridos]
+                tiempo_viaje = self.grafo.determinar_tiempo_viaje(ids)
+                ids = [sol.id for sol in recorridos]
+                tiempo_poda = self.grafo.determinar_tiempo_poda(ids)
+                tiempo_t = 60*8 - tiempo_poda - tiempo_viaje
+                self.tiempo_viaje += tiempo_viaje
+                self.tiempo_restante += tiempo_t
+
                 for node in recorridos:
                     self.grafo.eliminar_nodo(node)
-                    for sol in self.solicitudes:
-                        if sol.id == node.id:
-                            sols.append(sol)
-                            # print("INICIO: {} - MAXIMO: {} - DIAS ATENCION: {}".format(sol.plazo_inicial, sol._plazo_maximo, sol.plazo_inicial - sol._plazo_maximo + 1))
-                            self.dias_atencion.append(sol.plazo_inicial - sol._plazo_maximo + 1)
-                self.solicitudes = [sol for sol in self.solicitudes if sol not in sols]
+
+                
             except IndexError as e:
                 # print("no hay mas solicitudes")
                 pass
@@ -245,7 +250,7 @@ def printear(n, estadisticas, tiempo_maximo):
 if __name__ == '__main__':
     meses = 3
     dias = 30*meses
-    repetitions = 3
+    repetitions = 1
     
     print("Caso BASE")
     modo = 'base'

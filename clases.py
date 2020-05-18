@@ -206,22 +206,23 @@ class Grafo:
             if nodo1 in conect.conections and nodo2 in conect.conections:
                 return conect
     
-    def determinar_tiempo_viaje(self, ids):
-        new = ids.pop(0)
-        nodo = self.encontrar_nodo(new)
+    def determinar_tiempo_viaje(self, ids, start=True):
+        nodo = self.encontrar_nodo(ids.pop(0))
+        tiempo = 0
+        if start:
+            tiempo += nodo.muni.tiempo
         if len(ids) == 0:
             return nodo.muni.tiempo
         nodo2 = self.encontrar_nodo(ids.pop(0))
         connect = self.encontrar_coneccion(nodo, nodo2)
-        return connect.tiempo + self.determinar_tiempo_viaje(ids)
+        return connect.tiempo + tiempo + self.determinar_tiempo_viaje(ids, False)
     
     def determinar_tiempo_poda(self, ids):
         new = ids.pop(0)
         nodo = self.encontrar_nodo(new)
         if len(ids) == 0:
             return nodo.tiempo_poda
-        nodo2 = self.encontrar_nodo(ids.pop(0))
-        return nodo2.tiempo_poda + self.determinar_tiempo_poda(ids)
+        return self.determinar_tiempo_poda(ids) + nodo.tiempo_poda
 
 class Nodo:
     def __init__(self, tiempo_inicial, num, urgencia, lat, lon, tiempo_poda):

@@ -74,7 +74,7 @@ class Solicitude:
         elif self.urgencia == 1:
             return 4*60
         else:
-            return (0.5 + randint(0, 5))*60
+            return (2 + randint(0, 5))*60
 
 class Evento:
     def __init__(self, nombre, tiempo):

@@ -178,13 +178,13 @@ class Simulation:
                 self.tiempo_actual = evento.tiempo
                 self.metodos[evento.nombre](evento)
 
-def global_statistics(n, dias, meses, modo=None, step=10):
+def global_statistics(n, dias, meses, modo=None, plan=1, step=10):
     tiempo_maximo = 24 * 60 * dias
     estadisticas = list()
     for i in range(n):
         seed(i)
         llegadas = ll.generar_llegadas(dias, repetitions, i)
-        s = Simulation(dias, llegadas, meses, modo, step)
+        s = Simulation(dias, llegadas, meses, modo, plan, step)
         s.run()
         estadisticas.append(
             {'podas_realizadas': s.podas_realizadas,
@@ -237,11 +237,12 @@ if __name__ == '__main__':
     estadisticas, tiempo = global_statistics(repetitions, dias, meses, modo)
     printear(repetitions, estadisticas, tiempo)
 
+    
     for step in range(5, 6):
 
         print("\nCaso HEURISTICA 2 con STEP={}".format(step))
         modo = None
         plan = 2
         # llegadas = ll.generar_llegadas(dias, repetitions)
-        estadisticas, tiempo = global_statistics(repetitions, dias, meses, modo, step)
+        estadisticas, tiempo = global_statistics(repetitions, dias, meses, modo, plan, step)
         printear(repetitions, estadisticas, tiempo)

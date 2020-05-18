@@ -1,10 +1,11 @@
-from random import expovariate, uniform
+from random import expovariate, uniform, seed
 
 solicitudes = 40 # Solicitudes por semana
 tiempo_semana = 60*24*7 # minutos*horas*dias (tiempo para la ocurrencia)
 lamb = solicitudes/tiempo_semana # lambda, ocurrencias en un tiempo
 
-def generar_llegadas(dias, rep):
+def generar_llegadas(dias, rep, i):
+    seed(i)
     llegadas = []
     for _ in range(rep):
         tiempo_maximo = 24*60*dias

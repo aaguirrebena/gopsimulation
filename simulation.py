@@ -1,7 +1,7 @@
 import clases as cl
 import arrive as ll
 import numpy as np
-from random import random, seed
+from random import random, seed, shuffle
 
 dia_inicial = 15
 
@@ -88,11 +88,13 @@ class Simulation:
     def planificar_base(self, *args):
         
         self.eliminar_perdidas()
+        
+        shuffle(self.solicitudes)
 
         for i in range(3):
             try:
                 # print("Planificacion cuadrilla {}".format(i))
-                ordenada = sorted(self.solicitudes, key=lambda x: (x.urgencia, x.tiempo_inicial))
+                ordenada = sorted(self.solicitudes, key=lambda x: (x.urgencia))
                 sols = []
                 nodos = []
 
@@ -133,7 +135,7 @@ class Simulation:
         # print("dia: ", self.dia_actual)
 
         self.eliminar_perdidas()
-
+        shuffle(self.solicitudes)
 
         for i in range(3):
             try:
@@ -176,11 +178,12 @@ class Simulation:
                 self.tiempo_actual = evento.tiempo
                 self.metodos[evento.nombre](evento)
 
-def global_statistics(n, dias, meses, llegadas, modo=None, step=10):
+def global_statistics(n, dias, meses, modo=None, step=10):
     tiempo_maximo = 24 * 60 * dias
     estadisticas = list()
     for i in range(n):
         seed(i)
+        llegadas = ll.generar_llegadas(dias, repetitions, i)
         s = Simulation(dias, llegadas, meses, modo, step)
         s.run()
         estadisticas.append(
@@ -219,26 +222,26 @@ def printear(n, estadisticas, tiempo_maximo):
 if __name__ == '__main__':
     meses = 12
     dias = 30*meses
-    repetitions = 5
+    repetitions = 10
     
     print("Caso BASE")
     modo = 'base'
-    llegadas = ll.generar_llegadas(dias, repetitions)
-    estadisticas, tiempo = global_statistics(repetitions, dias, meses, llegadas, modo)
+    # llegadas = ll.generar_llegadas(dias, repetitions)
+    estadisticas, tiempo = global_statistics(repetitions, dias, meses, modo)
     printear(repetitions, estadisticas, tiempo)
 
     print("\nCaso HEURISTICA 1")
     modo = None
     plan = 1
-    llegadas = ll.generar_llegadas(dias, repetitions)
-    estadisticas, tiempo = global_statistics(repetitions, dias, meses, llegadas, modo)
+    # llegadas = ll.generar_llegadas(dias, repetitions)
+    estadisticas, tiempo = global_statistics(repetitions, dias, meses, modo)
     printear(repetitions, estadisticas, tiempo)
 
-    for step in range(1, 11):
+    for step in range(5, 6):
 
         print("\nCaso HEURISTICA 2 con STEP={}".format(step))
         modo = None
         plan = 2
-        llegadas = ll.generar_llegadas(dias, repetitions)
-        estadisticas, tiempo = global_statistics(repetitions, dias, meses, llegadas, modo, step)
+        # llegadas = ll.generar_llegadas(dias, repetitions)
+        estadisticas, tiempo = global_statistics(repetitions, dias, meses, modo, step)
         printear(repetitions, estadisticas, tiempo)

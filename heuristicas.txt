@@ -1,0 +1,29 @@
+Politica Base
+
+Elimino Solicitudes perdidad
+Para cata cuadrilla
+    Solicitudes --> Ordenar por Urgencia y antiguedad (desempate)
+    Recorrido = [Solicitudes[0]]
+
+    Itero por solicitudes ordenadas:
+        Si se puede completer Recorrido + Solicitud en jornada laboral:
+            Agrego solicitud a Recorrido
+
+
+Heuristica 2:
+
+# conecciones ordenadas por tiempo de traslado y poda, desempate por antiguedad
+
+Elimino Solicitudes perdidad
+Para cata cuadrilla
+    Solicitudes --> Ordenar por funcion de Prioridad
+    Recorrido = [Solicitudes[0]]
+
+    Mientras sea Posible:
+        para recorrido[-1] (1)
+            veo las 5 conecciones de la lista ordenada: (2)
+                ordeno las conecciones por antigueadad de solicitud: (3)
+                busco la primera poda que se puede completar: (4)
+                    Se agrega al recorrido y vuelo a (1)
+
+

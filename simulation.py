@@ -14,15 +14,17 @@ class Simulation:
         self.solicitudes = list()
         self.dia_actual = dia_inicial
         self.dias = 0 # dias que quedan de simulacion
-        self.dias_atencion = []
-        self.perdidas = 0
-        self.descartadas = 0
         self.meses = meses
         self.plan = plan
         self.step = step
 
         #Estadisticas importantes
         self.podas_realizadas = 0
+        self.tiempo_viaje = 0
+        self.tiempo_restante = 0
+        self.dias_atencion = []
+        self.perdidas = 0
+        self.descartadas = 0
 
         #Se crea el grafo
         self.grafo = cl.Grafo()
@@ -66,9 +68,10 @@ class Simulation:
 
         # Si no es urgencia, 50% se descarta
         rand = random()
-        if rand <= 0.5:
+        if rand <= 0.7:
             self.solicitudes.append(solicitud)
             self.grafo.agregar_nodo(solicitud)
+        else:
             self.descartadas += 1
     
     def eliminar_perdidas(self):
@@ -119,6 +122,14 @@ class Simulation:
                 
                 self.podas_realizadas += len(sols)
                 self.solicitudes = [sol for sol in self.solicitudes if sol not in sols]
+
+                # ids = [sol.id for sol in sols]
+                # tiempo_viaje = self.grafo.determinar_tiempo_viaje(ids)
+                # tiempo_poda = self.grafo.determinar_tiempo_poda(ids)
+                # tiempo_t = 60*8 - tiempo_poda - tiempo_viaje
+                # self.tiempo_viaje += tiempo_viaje
+                # self.tiempo_restante += tiempo_t
+
                 for node in nodos:
                     self.grafo.eliminar_nodo(node)
             except IndexError as e:
@@ -150,6 +161,13 @@ class Simulation:
                 # print([node.id for node in recorridos])
                 self.podas_realizadas += len(recorridos)
 
+                # ids = [sol.id for sol in recorridos]
+                # tiempo_viaje = self.grafo.determinar_tiempo_viaje(ids)
+                # tiempo_poda = self.grafo.determinar_tiempo_poda(ids)
+                # tiempo_t = 60*8 - tiempo_poda - tiempo_viaje
+                # self.tiempo_viaje += tiempo_viaje
+                # self.tiempo_restante += tiempo_t
+
                 sols = []
                 for node in recorridos:
                     self.grafo.eliminar_nodo(node)
@@ -158,7 +176,7 @@ class Simulation:
                             sols.append(sol)
                             # print("INICIO: {} - MAXIMO: {} - DIAS ATENCION: {}".format(sol.plazo_inicial, sol._plazo_maximo, sol.plazo_inicial - sol._plazo_maximo + 1))
                             self.dias_atencion.append(sol.plazo_inicial - sol._plazo_maximo + 1)
-                    self.solicitudes = [sol for sol in self.solicitudes if sol not in sols]
+                self.solicitudes = [sol for sol in self.solicitudes if sol not in sols]
             except IndexError as e:
                 # print("no hay mas solicitudes")
                 pass
@@ -191,7 +209,10 @@ def global_statistics(n, dias, meses, modo=None, plan=1, step=10):
             "podas_pendientes": s._podas_pendientes,
             "dias_atencion": np.mean(s.dias_atencion),
             "solicitudes_perdidas": s.perdidas,
-            "solicitudes_descartadas": s.descartadas})
+            "solicitudes_descartadas": s.descartadas,
+            "tiempo_viaje": s.tiempo_viaje,
+            "tiempo_restante": s.tiempo_restante
+            })
         # print("Simulacion numero: {}".format(i))
         # for x in range(len(s.solicitudes)):
         #     print("dia_actual: {} - id solicitud: {} - urgencia: {} - dia_llegada: {} - plazo_restante: {}".format(s.dia_actual, s.solicitudes[x].id, s.solicitudes[x].urgencia, s.solicitudes[x]._dia_llegada, s.solicitudes[x]._plazo_maximo))
@@ -218,11 +239,13 @@ def printear(n, estadisticas, tiempo_maximo):
     print("   Promedio solicitudes perdidas:                  {0:<10.6}".format(np.mean([est['solicitudes_perdidas'] for est in estadisticas])))
     print("   Promedio dias de atencion:                  {0:<10.6}".format(np.mean([est['dias_atencion'] for est in estadisticas])))
     print("   Promedio de solicitudes descartadas:                  {0:<10.6}".format(np.mean([est['solicitudes_descartadas'] for est in estadisticas])))
+    print("   Promedio de tiempo de viaje:                  {0:<10.6}".format(np.mean([est['tiempo_viaje'] for est in estadisticas])))
+    print("   Promedio de tiempo de restante:                  {0:<10.6}".format(np.mean([est['tiempo_restante'] for est in estadisticas])))
 
 if __name__ == '__main__':
-    meses = 12
+    meses = 3
     dias = 30*meses
-    repetitions = 10
+    repetitions = 3
     
     print("Caso BASE")
     modo = 'base'
@@ -237,7 +260,7 @@ if __name__ == '__main__':
     estadisticas, tiempo = global_statistics(repetitions, dias, meses, modo)
     printear(repetitions, estadisticas, tiempo)
 
-    
+
     for step in range(5, 6):
 
         print("\nCaso HEURISTICA 2 con STEP={}".format(step))

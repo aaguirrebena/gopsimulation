@@ -9,7 +9,7 @@ class Solicitude:
     def __init__(self, tiempo_inicio, simulacion):
         self.tiempo_inicial = tiempo_inicio
         self.urgencia = self.definir_urgencia()
-        self.plazo_inicial = 20
+        self.plazo_inicial = 25
         self.simulacion = simulacion
 
         self.tiempo_poda = self.definir_tempo_poda()
@@ -74,7 +74,7 @@ class Solicitude:
         elif self.urgencia == 1:
             return 4*60
         else:
-            return (2 + randint(0, 5))*60
+            return (1 + randint(0, 3))*60
 
 class Evento:
     def __init__(self, nombre, tiempo):
@@ -205,6 +205,23 @@ class Grafo:
         for conect in nodo1.conecciones:
             if nodo1 in conect.conections and nodo2 in conect.conections:
                 return conect
+    
+    def determinar_tiempo_viaje(self, ids):
+        new = ids.pop(0)
+        nodo = self.encontrar_nodo(new)
+        if len(ids) == 0:
+            return nodo.muni.tiempo
+        nodo2 = self.encontrar_nodo(ids.pop(0))
+        connect = self.encontrar_coneccion(nodo, nodo2)
+        return connect.tiempo + self.determinar_tiempo_viaje(ids)
+    
+    def determinar_tiempo_poda(self, ids):
+        new = ids.pop(0)
+        nodo = self.encontrar_nodo(new)
+        if len(ids) == 0:
+            return nodo.tiempo_poda
+        nodo2 = self.encontrar_nodo(ids.pop(0))
+        return nodo2.tiempo_poda + self.determinar_tiempo_poda(ids)
 
 class Nodo:
     def __init__(self, tiempo_inicial, num, urgencia, lat, lon, tiempo_poda):

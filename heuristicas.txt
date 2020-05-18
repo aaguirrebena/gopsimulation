@@ -2,7 +2,7 @@ Politica Base
 
 Elimino Solicitudes perdidad
 Para cata cuadrilla
-    Solicitudes --> Ordenar por Urgencia y antiguedad (desempate)
+    Solicitudes --> Ordenar por Urgencia
     Recorrido = [Solicitudes[0]]
 
     Itero por solicitudes ordenadas:

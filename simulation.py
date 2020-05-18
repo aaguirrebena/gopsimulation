@@ -6,7 +6,7 @@ from random import random
 dia_inicial = 15
 
 class Simulation:
-    def __init__(self, dias, llegadas, meses):
+    def __init__(self, dias, llegadas, meses, modo=None):
         self.tiempo_maximo = dias*24*60
         self.llegadas = llegadas.pop(0)
         self.tiempo_actual = 0
@@ -27,8 +27,8 @@ class Simulation:
 
         # Simulation attributes
         self.metodos = {'nueva_solicitud': self.nueva_solicitud,
-                        'planificar_podas': self.planificar_podas,
-                        'fin_de_semana': self.fin_de_semana}
+                        'planificar_podas': self.planificar_podas if not modo else self.planificar_base,
+                        'fin_de_semana': self.fin_de_semana }
 
         #instanciar
 
@@ -68,14 +68,9 @@ class Simulation:
             self.solicitudes.append(solicitud)
             self.grafo.agregar_nodo(solicitud)
             self.descartadas += 1
-
-    def planificar_podas(self, *args):
-        """
-        ACA se debe de alguna manera establecer una lista con las urgenciaes de las podas para el dia siguiente
-        Se hace una vez al dia. Esto en base a las decisiones que nosotros creamos importantes
-        """
-        # print("dia: ", self.dia_actual)
-
+    
+    def eliminar_perdidas(self):
+        
         perdidas = []
         for sol in self.solicitudes:
             if sol._plazo_maximo <= 0:
@@ -87,6 +82,56 @@ class Simulation:
         eliminar = [node for node in self.grafo.nodos if node.id in perdidas]
         for node in eliminar:
             self.grafo.eliminar_nodo(node)
+    
+    def planificar_base(self, *args):
+        
+        self.eliminar_perdidas()
+
+        for i in range(3):
+            try:
+                # print("Planificacion cuadrilla {}".format(i))
+                ordenada = sorted(self.solicitudes, key=lambda x: (x.urgencia, x.tiempo_inicial))
+                sols = []
+                nodos = []
+
+                inicial = ordenada.pop(0)
+                self.dias_atencion.append(inicial.plazo_inicial - inicial._plazo_maximo + 1)
+                nodo_inicial =  self.grafo.encontrar_nodo(inicial.id)
+
+                sols.append((inicial))
+                nodos.append(nodo_inicial)
+
+                tiempo = nodo_inicial.muni.tiempo + nodo_inicial.tiempo_poda
+
+                for sol in ordenada:
+                    proximo_nodo = self.grafo.encontrar_nodo(sol.id)
+                    conection = self.grafo.encontrar_coneccion(proximo_nodo, nodos[-1])
+                    posible = conection.tiempo + proximo_nodo.tiempo_poda + proximo_nodo.muni.tiempo
+                    if tiempo + posible <= 8*60:
+                        sols.append(sol)
+                        self.dias_atencion.append(sol.plazo_inicial - sol._plazo_maximo + 1)
+                        nodos.append(proximo_nodo)
+                        tiempo += conection.tiempo + proximo_nodo.tiempo_poda
+                
+                self.podas_realizadas += len(sols)
+                self.solicitudes = [sol for sol in self.solicitudes if sol not in sols]
+                for node in nodos:
+                    self.grafo.eliminar_nodo(node)
+            except IndexError as e:
+                    # print("no hay mas solicitudes")
+                    pass
+        
+        self.dia_actual += 1
+
+    def planificar_podas(self, *args):
+        """
+        ACA se debe de alguna manera establecer una lista con las urgenciaes de las podas para el dia siguiente
+        Se hace una vez al dia. Esto en base a las decisiones que nosotros creamos importantes
+        """
+        # print("dia: ", self.dia_actual)
+
+        self.eliminar_perdidas()
+
 
         for i in range(3):
             try:
@@ -97,9 +142,9 @@ class Simulation:
                 # print([node.id for node in recorridos])
                 self.podas_realizadas += len(recorridos)
 
+                sols = []
                 for node in recorridos:
                     self.grafo.eliminar_nodo(node)
-                    sols = []
                     for sol in self.solicitudes:
                         if sol.id == node.id:
                             sols.append(sol)
@@ -125,11 +170,11 @@ class Simulation:
                 self.tiempo_actual = evento.tiempo
                 self.metodos[evento.nombre](evento)
 
-def global_statistics(n, dias, meses, llegadas):
+def global_statistics(n, dias, meses, llegadas, modo=None):
     tiempo_maximo = 24 * 60 * dias
     estadisticas = list()
     for i in range(n):
-        s = Simulation(dias, llegadas, meses)
+        s = Simulation(dias, llegadas, meses, modo)
         s.run()
         estadisticas.append(
             {'podas_realizadas': s.podas_realizadas,
@@ -153,7 +198,7 @@ def printear(n, estadisticas, tiempo_maximo):
     for n_sim in range(n):
         #  Por si queremos ver cosas de cada simulacion
         pass
-
+   
     print("\nPensar en datos relevantes")
     print("Estadisticas Promedio:")
     print("Simulacion de {} dias".format(dias))
@@ -168,6 +213,15 @@ if __name__ == '__main__':
     meses = 12
     dias = 30*meses
     repetitions = 5
+    
+    print("Caso BASE")
+    modo = 'base'
     llegadas = ll.generar_llegadas(dias, repetitions)
-    estadisticas, tiempo = global_statistics(repetitions, dias, meses, llegadas)
+    estadisticas, tiempo = global_statistics(repetitions, dias, meses, llegadas, modo)
+    printear(repetitions, estadisticas, tiempo)
+
+    print("\nCaso HEURISTICA")
+    modo = None
+    llegadas = ll.generar_llegadas(dias, repetitions)
+    estadisticas, tiempo = global_statistics(repetitions, dias, meses, llegadas, modo)
     printear(repetitions, estadisticas, tiempo)

@@ -147,7 +147,6 @@ class Grafo:
         node1.conecciones = [i for i in node1.conecciones if i.conections[1] != node2]
         node2.conecciones = [i for i in node2.conecciones if i.conections[1] != node1]
             
-    
     def planificar(self, id, start=None, muni=True, tiempo=0, visitados=[]):
         start_node = self.encontrar_nodo(id)
         visitados.append(start_node)

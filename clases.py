@@ -108,7 +108,7 @@ class Grafo:
     
     @staticmethod
     def key_sort(coneccion):
-        return coneccion.tiempo + coneccion.conections[1].tiempo_poda
+        return coneccion.tiempo + coneccion.conections[1].tiempo_poda,  coneccion.conections[1].tiempo_inicial
 
     def agregar_nodo(self, solicitud):
         nuevo_nodo = Nodo(solicitud.tiempo_inicial, solicitud.id, solicitud.urgencia, solicitud.lat, solicitud.lon, solicitud.tiempo_poda)

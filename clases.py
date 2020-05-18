@@ -147,6 +147,7 @@ class Grafo:
         node1.conecciones = [i for i in node1.conecciones if i.conections[1] != node2]
         node2.conecciones = [i for i in node2.conecciones if i.conections[1] != node1]
             
+    
     def planificar(self, id, start=None, muni=True, tiempo=0, visitados=[]):
         start_node = self.encontrar_nodo(id)
         visitados.append(start_node)
@@ -165,6 +166,35 @@ class Grafo:
                 if tiempo + posible <= 8*60:
                     return [start_node] + self.planificar(nodo2.id, start_node, False, tiempo + conect.tiempo, visitados)
         return [start_node]
+    
+    def planificar2(self, id, start=None, muni=True, tiempo=0, visitados=[], step=10):
+            start_node = self.encontrar_nodo(id)
+            visitados.append(start_node)
+            if muni:
+                tiempo += start_node.muni.tiempo
+            elif start is not None:
+                tiempo += self.encontrar_coneccion(start_node, start).tiempo
+            tiempo += start_node.tiempo_poda
+
+            i = 0
+            while i < len(start_node.conecciones):
+                if i + step < len(start_node.conecciones):
+                    conections = start_node.conecciones[i: i+step]
+                else:
+                    conections = start_node.conecciones[i::]
+                
+                conections = sorted(conections, key = lambda x: (x.conections[1].tiempo_inicial, self.key_sort))
+            
+                for conect in conections:
+                    nodo2 = conect.conections[1]
+                    
+                    if nodo2 not in visitados:
+                        posible = conect.tiempo + nodo2.tiempo_poda + nodo2.muni.tiempo
+                        # print(posible)
+                        if tiempo + posible <= 8*60:
+                            return [start_node] + self.planificar(nodo2.id, start_node, False, tiempo + conect.tiempo, visitados)
+                i += step
+            return [start_node]
         
     def encontrar_nodo(self, nodo1):
         for nodo in self.nodos:

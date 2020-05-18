@@ -1,12 +1,12 @@
 import clases as cl
 import arrive as ll
 import numpy as np
-from random import random
+from random import random, seed
 
 dia_inicial = 15
 
 class Simulation:
-    def __init__(self, dias, llegadas, meses, modo=None):
+    def __init__(self, dias, llegadas, meses, modo=None, plan=1, step=10):
         self.tiempo_maximo = dias*24*60
         self.llegadas = llegadas.pop(0)
         self.tiempo_actual = 0
@@ -18,6 +18,8 @@ class Simulation:
         self.perdidas = 0
         self.descartadas = 0
         self.meses = meses
+        self.plan = plan
+        self.step = step
 
         #Estadisticas importantes
         self.podas_realizadas = 0
@@ -138,7 +140,11 @@ class Simulation:
                 # print("Planificacion cuadrilla {}".format(i))
                 ordenada = sorted(self.solicitudes, key=lambda x: x.prioridad, reverse=True)
                 solicitud = ordenada.pop(0)
-                recorridos = self.grafo.planificar(solicitud.id)
+                
+                if plan == 1:
+                    recorridos = self.grafo.planificar(solicitud.id)
+                else:
+                    recorridos = self.grafo.planificar2(solicitud.id, step=self.step)
                 # print([node.id for node in recorridos])
                 self.podas_realizadas += len(recorridos)
 
@@ -174,6 +180,7 @@ def global_statistics(n, dias, meses, llegadas, modo=None):
     tiempo_maximo = 24 * 60 * dias
     estadisticas = list()
     for i in range(n):
+        seed(i)
         s = Simulation(dias, llegadas, meses, modo)
         s.run()
         estadisticas.append(
@@ -182,7 +189,7 @@ def global_statistics(n, dias, meses, llegadas, modo=None):
             "dias_atencion": np.mean(s.dias_atencion),
             "solicitudes_perdidas": s.perdidas,
             "solicitudes_descartadas": s.descartadas})
-        print("Simulacion numero: {}".format(i))
+        # print("Simulacion numero: {}".format(i))
         # for x in range(len(s.solicitudes)):
         #     print("dia_actual: {} - id solicitud: {} - urgencia: {} - dia_llegada: {} - plazo_restante: {}".format(s.dia_actual, s.solicitudes[x].id, s.solicitudes[x].urgencia, s.solicitudes[x]._dia_llegada, s.solicitudes[x]._plazo_maximo))
         # s.grafo.print_conecciones(s.grafo.nodos[0])
@@ -220,8 +227,18 @@ if __name__ == '__main__':
     estadisticas, tiempo = global_statistics(repetitions, dias, meses, llegadas, modo)
     printear(repetitions, estadisticas, tiempo)
 
-    print("\nCaso HEURISTICA")
+    print("\nCaso HEURISTICA 1")
     modo = None
+    plan = 1
     llegadas = ll.generar_llegadas(dias, repetitions)
     estadisticas, tiempo = global_statistics(repetitions, dias, meses, llegadas, modo)
     printear(repetitions, estadisticas, tiempo)
+
+    for step in range(1, 11):
+
+        print("\nCaso HEURISTICA 2 con STEP={}".format(step))
+        modo = None
+        plan = 2
+        llegadas = ll.generar_llegadas(dias, repetitions)
+        estadisticas, tiempo = global_statistics(repetitions, dias, meses, llegadas, modo, step)
+        printear(repetitions, estadisticas, tiempo)

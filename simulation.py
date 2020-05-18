@@ -176,12 +176,12 @@ class Simulation:
                 self.tiempo_actual = evento.tiempo
                 self.metodos[evento.nombre](evento)
 
-def global_statistics(n, dias, meses, llegadas, modo=None):
+def global_statistics(n, dias, meses, llegadas, modo=None, step=10):
     tiempo_maximo = 24 * 60 * dias
     estadisticas = list()
     for i in range(n):
         seed(i)
-        s = Simulation(dias, llegadas, meses, modo)
+        s = Simulation(dias, llegadas, meses, modo, step)
         s.run()
         estadisticas.append(
             {'podas_realizadas': s.podas_realizadas,

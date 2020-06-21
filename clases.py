@@ -9,7 +9,7 @@ class Solicitude:
     def __init__(self, tiempo_inicio, simulacion):
         self.tiempo_inicial = tiempo_inicio
         self.urgencia = self.definir_urgencia()
-        self.plazo_inicial = 25
+        self.plazo_inicial = 30
         self.simulacion = simulacion
 
         self.tiempo_poda = self.definir_tempo_poda()
@@ -72,9 +72,12 @@ class Solicitude:
         if self.urgencia == 1 and p <= 0.5:
             return 7*60
         elif self.urgencia == 1:
-            return 4*60
+            return 2*60
+        elif p <= 0.5:
+            return (0.5 * randint(0, 9))*60
         else:
-            return (1 + randint(0, 3))*60
+            return (0.5 * randint(0, 5))*60
+
 
 class Evento:
     def __init__(self, nombre, tiempo):

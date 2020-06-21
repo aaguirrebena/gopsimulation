@@ -41,6 +41,14 @@ class Simulation:
         pendientes = len(self.solicitudes)
         return pendientes
 
+    @property
+    def _pendientes_tiempo(self):
+        tiempo = 0
+        for x in self.solicitudes:
+            tiempo += x.tiempo_poda
+        return tiempo/60
+
+
     def eventos_iniciales(self):
         self.eventos.append(cl.Evento('nueva_solicitud', self.llegadas.pop(0)))
 
@@ -68,7 +76,7 @@ class Simulation:
 
         # Si no es urgencia, 50% se descarta
         rand = random()
-        if rand <= 0.7:
+        if rand <= 0.9:
             self.solicitudes.append(solicitud)
             self.grafo.agregar_nodo(solicitud)
         else:
@@ -90,7 +98,7 @@ class Simulation:
     
     def planificar_base(self, *args):
         
-        self.eliminar_perdidas()
+        # self.eliminar_perdidas()
         
         shuffle(self.solicitudes)
 
@@ -128,6 +136,8 @@ class Simulation:
                 ids = [sol.id for sol in sols]
                 tiempo_poda = self.grafo.determinar_tiempo_poda(ids)
                 tiempo_t = 60*8 - tiempo_poda - tiempo_viaje
+
+                
                 self.tiempo_viaje += tiempo_viaje
                 self.tiempo_restante += tiempo_t
 
@@ -146,7 +156,7 @@ class Simulation:
         """
         # print("dia: ", self.dia_actual)
 
-        self.eliminar_perdidas()
+        # self.eliminar_perdidas()
         shuffle(self.solicitudes)
 
         for i in range(3):
@@ -175,6 +185,8 @@ class Simulation:
                 ids = [sol.id for sol in recorridos]
                 tiempo_poda = self.grafo.determinar_tiempo_poda(ids)
                 tiempo_t = 60*8 - tiempo_poda - tiempo_viaje
+
+
                 self.tiempo_viaje += tiempo_viaje
                 self.tiempo_restante += tiempo_t
 
@@ -216,6 +228,7 @@ def global_statistics(n, dias, meses, modo=None, plan=1, step=10):
             "solicitudes_perdidas": s.perdidas,
             "solicitudes_descartadas": s.descartadas,
             "tiempo_viaje": s.tiempo_viaje,
+            "tiempo_pendientes": s._pendientes_tiempo,
             "tiempo_restante": s.tiempo_restante
             })
         # print("Simulacion numero: {}".format(i))
@@ -246,19 +259,20 @@ def printear(n, estadisticas, tiempo_maximo):
     print("   Promedio de solicitudes descartadas:                  {0:<10.6}".format(np.mean([est['solicitudes_descartadas'] for est in estadisticas])))
     print("   Promedio de tiempo de viaje:                  {0:<10.6}".format(np.mean([est['tiempo_viaje'] for est in estadisticas])))
     print("   Promedio de tiempo de restante:                  {0:<10.6}".format(np.mean([est['tiempo_restante'] for est in estadisticas])))
+    print("   Promedio de tiempo de pendientes:                  {0:<10.6}".format(np.mean([est['tiempo_pendientes'] for est in estadisticas])))
 
 if __name__ == '__main__':
-    meses = 3
+    meses = 12
     dias = 30*meses
-    repetitions = 1
+    repetitions = 5
     
-    print("Caso BASE")
-    modo = 'base'
+    # print("\nCaso HEURISTICA 1")
+    # modo = 'base'
     # llegadas = ll.generar_llegadas(dias, repetitions)
-    estadisticas, tiempo = global_statistics(repetitions, dias, meses, modo)
-    printear(repetitions, estadisticas, tiempo)
+    # estadisticas, tiempo = global_statistics(repetitions, dias, meses, modo)
+    # printear(repetitions, estadisticas, tiempo)
 
-    print("\nCaso HEURISTICA 1")
+    print("\nCaso HEURISTICA 2")
     modo = None
     plan = 1
     # llegadas = ll.generar_llegadas(dias, repetitions)
@@ -266,11 +280,11 @@ if __name__ == '__main__':
     printear(repetitions, estadisticas, tiempo)
 
 
-    for step in range(5, 6):
+    # for step in range(5, 6):
 
-        print("\nCaso HEURISTICA 2 con STEP={}".format(step))
-        modo = None
-        plan = 2
-        # llegadas = ll.generar_llegadas(dias, repetitions)
-        estadisticas, tiempo = global_statistics(repetitions, dias, meses, modo, plan, step)
-        printear(repetitions, estadisticas, tiempo)
+    #     print("\nCaso HEURISTICA 3 con STEP={}".format(step))
+    #     modo = None
+    #     plan = 2
+    #     # llegadas = ll.generar_llegadas(dias, repetitions)
+    #     estadisticas, tiempo = global_statistics(repetitions, dias, meses, modo, plan, step)
+    #     printear(repetitions, estadisticas, tiempo)

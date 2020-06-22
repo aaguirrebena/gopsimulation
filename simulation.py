@@ -102,10 +102,16 @@ class Simulation:
         
         shuffle(self.solicitudes)
 
+        def aux(x):
+            try:
+                return 1/x.prioridad
+            except Exception:
+                return 0
+
         for i in range(3):
             try:
                 # print("Planificacion cuadrilla {}".format(i))
-                ordenada = sorted(self.solicitudes, key=lambda x: (x.urgencia))
+                ordenada = sorted(self.solicitudes, key=lambda x: (x.urgencia, aux(x)))
                 sols = []
                 nodos = []
 
@@ -266,25 +272,20 @@ if __name__ == '__main__':
     dias = 30*meses
     repetitions = 5
     
-    # print("\nCaso HEURISTICA 1")
-    # modo = 'base'
-    # llegadas = ll.generar_llegadas(dias, repetitions)
-    # estadisticas, tiempo = global_statistics(repetitions, dias, meses, modo)
-    # printear(repetitions, estadisticas, tiempo)
+    print("\nCaso HEURISTICA 1")
+    modo = 'base'
+    estadisticas, tiempo = global_statistics(repetitions, dias, meses, modo)
+    printear(repetitions, estadisticas, tiempo)
 
     print("\nCaso HEURISTICA 2")
     modo = None
     plan = 1
-    # llegadas = ll.generar_llegadas(dias, repetitions)
     estadisticas, tiempo = global_statistics(repetitions, dias, meses, modo)
     printear(repetitions, estadisticas, tiempo)
 
-
-    # for step in range(5, 6):
-
-    #     print("\nCaso HEURISTICA 3 con STEP={}".format(step))
-    #     modo = None
-    #     plan = 2
-    #     # llegadas = ll.generar_llegadas(dias, repetitions)
-    #     estadisticas, tiempo = global_statistics(repetitions, dias, meses, modo, plan, step)
-    #     printear(repetitions, estadisticas, tiempo)
+    step = 5
+    print("\nCaso HEURISTICA 3 con STEP={}".format(step))
+    modo = None
+    plan = 2
+    estadisticas, tiempo = global_statistics(repetitions, dias, meses, modo, plan, step)
+    printear(repetitions, estadisticas, tiempo)
